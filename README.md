@@ -17,9 +17,9 @@ Our experiments demonstrate the effectiveness of the proposed approach by showin
 ### To apply our approach (xSemAD)
 Use at least ![python](https://img.shields.io/badge/python-black?logo=python&label=3.8.13)
 1. clone this project <code>git clone</code> to get the repository
-2. install the requirements in the constraints-transformer folder with 
+2. install the requirements using following CLI 
 ```sh
-pip install -r requirements.txt
+./first_install.sh
 ```
 Make sure to adapt all path file names to your needs.
 ### To apply SVM or BERT from Caspary et al. 2023
