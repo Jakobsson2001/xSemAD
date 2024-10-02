@@ -1,6 +1,6 @@
 ########### preprocessing ##############
 config_preprocessing_param={
-    'json_dir' : "../../data/raw/sap_sam_2022/filtered/json",
+    'json_dir' : "../data/raw/sap_sam_2022/filtered/json",
     'petri_nets_dir':'data/sap_sam_2022/filtered/petri_nets',
     'timeout':30,
     'logs_dir':'data/sap_sam_2022/filtered/logs',

@@ -11,6 +11,8 @@ from datetime import datetime
 from pm4py.algo.analysis.woflan import algorithm as woflan
 
 sys.path.append('../')
+sys.path.append('bpmn2constraints/')
+print(sys.path)
 
 from conversion.json2petrinet import JsonToPetriNetConverter
 from bpmn2constraints.bpmnconstraints.script import compile_bpmn_diagram
@@ -21,6 +23,7 @@ from config import config_preprocessing_param
 def is_english_bpmn(path_to_directory:str, json_file:str)->bool:
     # Checks whether considered json file is an English BPMN 2.0 model according to meta file
     json_file = json_file.replace(".json", ".meta.json")
+    print(json_file)
     with open(os.path.abspath(path_to_directory) + "/" + json_file, 'r') as f:
         data = f.read()
         json_data = json.loads(data)
@@ -139,13 +142,20 @@ def generate_constraints_from_json(json_dir:str, target_constraint_dir:str, cons
     else:
         json_files = json_names_to_process
 
+    print(json_files)
+
     all_constraint_types = set()
 
     for json_file in tqdm(json_files, desc='generate constraints'):
+
+        print("JSON-file" + json_file)
         case_name = os.path.basename(json_file).split('.')[0]
         path_to_file = os.path.join(json_dir,f'{case_name}.json')
+        print(path_to_file)
         try:
+            print("test 1")
             constraints = compile_bpmn_diagram(path_to_file, constraint_type, skip_named_gateways=True) # DECLARE, SIGNAL, LTLF, 
+            print("test 2")
             constraints = list(set(constraints))
             for constraint in constraints:
                 all_constraint_types.add(constraint.split('[')[0])
@@ -163,19 +173,25 @@ print(config_preprocessing_param)
 
 json_dir = config_preprocessing_param['json_dir']
 json_files = [f for f in os.listdir(json_dir) if f.endswith(".json") and not f.endswith("meta.json")]
+#print(json_files)
+#print("\n\n")
 #msg='#models in '+json_dir +': '+ str(len(json_files))
 #print(msg)
-json_files_bpmn_en = get_only_englisch_bpmn_models(json_dir,json_files)
+
+#Removed since I use Adrians/Timmis allready filtered CSV to create my own JSON files
+#json_files_bpmn_en = get_only_englisch_bpmn_models(json_dir,json_files)
+
+"""
 json_files_bpmn_en=json_files
 petri_nets_dir=config_preprocessing_param['petri_nets_dir']
 convert_jsons_to_petri(json_dir,json_files_bpmn_en,petri_nets_dir)
+"""
 
 timeout=config_preprocessing_param['timeout']
 logs_dir=config_preprocessing_param['logs_dir']
 logs_no_loops_dir=config_preprocessing_param['logs_no_loops_dir']
 target_dir_lables=config_preprocessing_param['target_dir_lables']
-generate_logs_from_petri_sers(timeout=timeout,petri_dir_en=petri_nets_dir, target_dir=logs_dir, target_dir_no_loops=logs_no_loops_dir,target_dir_lables=target_dir_lables)
-
+#generate_logs_from_petri_sers(timeout=timeout,petri_dir_en=petri_nets_dir, target_dir=logs_dir, target_dir_no_loops=logs_no_loops_dir,target_dir_lables=target_dir_lables)
 
 target_constraint_dir=config_preprocessing_param['target_constraint_dir']
 constraint_type=config_preprocessing_param['constraint_type']
