@@ -13,15 +13,35 @@ pip3 install git+https://github.com/disola/bpart5.git
 
 pip3 install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.0/en_core_web_sm-3.4.0.tar.gz --no-deps
 
-# Clone the bpmn2constraints repository if not already cloned
-if [ ! -d "bpmn2constraints" ]; then
-    git clone https://github.com/signavio/bpmn2constraints.git
+REPO_URL="https://github.com/signavio/bpmn2constraints.git"
+REPO_DIR="bpmn2constraints"
+
+# Clone the repository if it doesn't exist
+if [ ! -d "$REPO_DIR" ]; then
+    echo "Repository not found. Cloning..."
+    git clone "$REPO_URL"
+else
+    echo "Repository exists. Checking for updates..."
+    cd "$REPO_DIR"
+    # Fetch any updates from the remote repository
+    git fetch origin
+    # Check if the local repository is behind the remote
+    LOCAL_COMMIT=$(git rev-parse HEAD)
+    REMOTE_COMMIT=$(git rev-parse origin/main)
+
+    if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
+        echo "Updates found. Pulling the latest changes..."
+        git pull origin main
+    else
+        echo "No updates found. The repository is up-to-date."
+    fi
 fi
 
 # Navigate into the repository directory
-cd bpmn2constraints
+cd $REPO_DIR
 
 # Install the package using pip
+echo "Installing repo"
 pip3 install .
 
 cd ..
