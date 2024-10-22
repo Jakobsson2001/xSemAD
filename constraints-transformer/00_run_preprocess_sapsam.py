@@ -173,6 +173,7 @@ print(config_preprocessing_param)
 
 json_dir = config_preprocessing_param['json_dir']
 json_files = [f for f in os.listdir(json_dir) if f.endswith(".json") and not f.endswith("meta.json")]
+
 #print(json_files)
 #print("\n\n")
 #msg='#models in '+json_dir +': '+ str(len(json_files))
@@ -180,12 +181,10 @@ json_files = [f for f in os.listdir(json_dir) if f.endswith(".json") and not f.e
 
 #Removed since I use Adrians/Timmis allready filtered CSV to create my own JSON files
 #json_files_bpmn_en = get_only_englisch_bpmn_models(json_dir,json_files)
+#json_files_bpmn_en=json_files
 
-"""
-json_files_bpmn_en=json_files
 petri_nets_dir=config_preprocessing_param['petri_nets_dir']
-convert_jsons_to_petri(json_dir,json_files_bpmn_en,petri_nets_dir)
-"""
+convert_jsons_to_petri(json_dir, json_files, petri_nets_dir)
 
 timeout=config_preprocessing_param['timeout']
 logs_dir=config_preprocessing_param['logs_dir']
