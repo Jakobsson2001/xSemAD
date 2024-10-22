@@ -20,6 +20,13 @@ REPO_DIR="bpmn2constraints"
 if [ ! -d "$REPO_DIR" ]; then
     echo "Repository not found. Cloning..."
     git clone "$REPO_URL"
+
+    # Navigate into the repository directory
+    cd $REPO_DIR
+
+    # Install the package using pip
+    echo "Installing repo"
+    pip3 install .
 else
     echo "Repository exists. Checking for updates..."
     cd "$REPO_DIR"
@@ -32,17 +39,15 @@ else
     if [ "$LOCAL_COMMIT" != "$REMOTE_COMMIT" ]; then
         echo "Updates found. Pulling the latest changes..."
         git pull origin main
+
+      # Install the package using pip
+      echo "Installing repo"
+      pip3 install .
     else
         echo "No updates found. The repository is up-to-date."
     fi
 fi
 
-# Navigate into the repository directory
-cd $REPO_DIR
-
-# Install the package using pip
-echo "Installing repo"
-pip3 install .
 
 cd ..
 
