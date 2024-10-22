@@ -191,7 +191,7 @@ timeout=config_preprocessing_param['timeout']
 logs_dir=config_preprocessing_param['logs_dir']
 logs_no_loops_dir=config_preprocessing_param['logs_no_loops_dir']
 target_dir_lables=config_preprocessing_param['target_dir_lables']
-#generate_logs_from_petri_sers(timeout=timeout,petri_dir_en=petri_nets_dir, target_dir=logs_dir, target_dir_no_loops=logs_no_loops_dir,target_dir_lables=target_dir_lables)
+generate_logs_from_petri_sers(timeout=timeout,petri_dir_en=petri_nets_dir, target_dir=logs_dir, target_dir_no_loops=logs_no_loops_dir,target_dir_lables=target_dir_lables)
 
 target_constraint_dir=config_preprocessing_param['target_constraint_dir']
 constraint_type=config_preprocessing_param['constraint_type']
