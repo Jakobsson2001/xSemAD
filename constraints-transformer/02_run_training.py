@@ -47,6 +47,13 @@ model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print('---------------------')
 print(device)
+gpu_count = torch.cuda.device_count()
+gpu_name = torch.cuda.get_device_name(0)
+cuda_version = torch.version.cuda
+print(f"GPU Available: {True}")
+print(f"Number of GPUs: {gpu_count}")
+print(f"GPU Name: {gpu_name}")
+print(f"CUDA Version: {cuda_version}")
 print('---------------------')
 model = model.to(device)
 model.resize_token_embeddings(len(tokenizer))
@@ -55,7 +62,7 @@ seq2seq_args = Seq2SeqTrainingArguments(
     output_dir = model_dir,
     learning_rate = 4e-5, # 3e-4,
     lr_scheduler_type = "constant",
-    evaluation_strategy = "steps",
+    eval_strategy = "steps",
     eval_steps=400,
     save_strategy = "steps",
     save_steps=400,
