@@ -58,7 +58,7 @@ google-pasta==0.2.0
 graphviz==0.20.1
 grpcio==1.49.1
 h5py==3.7.0
-huggingface-hub==0.9.1
+huggingface-hub>=0.16.4,<1.0  # Loosen the version constraint for huggingface-hub
 idna==3.3
 importlib-metadata==4.11.4
 importlib-resources==5.9.0
