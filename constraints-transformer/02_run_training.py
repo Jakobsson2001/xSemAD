@@ -19,7 +19,7 @@ from transformers import AutoTokenizer
 model_checkpoint ='google/flan-t5-small'
 model_dir = f"data/model/{train_dataset}/{model_checkpoint}"
 
-tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
+tokenizer = AutoTokenizer.from_pretrained(model_checkpoint, torch_dtype=torch.bfloat16)
 tokenizer.add_special_tokens({'additional_special_tokens': ['<event>']})
 print(tokenizer)
 def preprocess_function(tokenizer, example):
