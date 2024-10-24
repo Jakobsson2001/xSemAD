@@ -42,7 +42,7 @@ tokenized_dataset = dataset.map(lambda example: preprocess_function(tokenizer, e
 
 # training
 early_stopping_callback = EarlyStoppingCallback(early_stopping_patience=20)
-model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint, torch_dtype=torch.bfloat16)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint)
 #model = SwitchTransformersEncoderModel.from_pretrained(model_checkpoint)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print('---------------------')
