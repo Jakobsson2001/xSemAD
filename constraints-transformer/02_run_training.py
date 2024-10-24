@@ -7,7 +7,6 @@ from transformers import AutoModelForSeq2SeqLM, DataCollatorForSeq2Seq, Seq2SeqT
 import transformers
 import torch
 
-
 train_dataset='sap_sam_2022/filtered'
 dataset_for_training_dir = f'data/{train_dataset}/forTraining' 
 training_dataset_filename = 'training'
@@ -51,11 +50,8 @@ print(device)
 gpu_count = torch.cuda.device_count()
 gpu_name = torch.cuda.get_device_name(0)
 cuda_version = torch.version.cuda
-print(f"GPU Available: {True}")
-print(f"Number of GPUs: {gpu_count}")
-print(f"GPU Name: {gpu_name}")
-print(f"CUDA Version: {cuda_version}")
 print('---------------------')
+
 model = model.to(device)
 model.resize_token_embeddings(len(tokenizer))
 transformers.logging.set_verbosity_info()
@@ -71,8 +67,8 @@ seq2seq_args = Seq2SeqTrainingArguments(
     weight_decay=0.015,
     report_to="tensorboard",
     load_best_model_at_end = True,
-    per_device_train_batch_size = 64,
-    per_device_eval_batch_size = 64
+    per_device_train_batch_size = 32,
+    per_device_eval_batch_size = 32
 )
 data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 trainer = Seq2SeqTrainer(
