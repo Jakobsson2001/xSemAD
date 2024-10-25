@@ -43,7 +43,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model = model.to(device)
 # 
 labels_dir = f'data/{dataset}/constraints_to_log_labels/'
-path_to_constraints = f'data/{dataset}/constraints_to_log_labels/'
+path_to_constraints = labels_dir 
 
 
 if not os.path.exists(prediction_output_dir):
