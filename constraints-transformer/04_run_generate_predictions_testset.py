@@ -33,7 +33,7 @@ with open(path_to_all_constraint_types_file,'rb') as f:
     all_constraint_types = pickle.load(f)
 
 #load model
-model_dir = f"data/model/{dataset}/{model_name}/{model_checkpoint}"
+model_dir = f"../data/model/{dataset}/{model_name}/{model_checkpoint}"
 model = AutoModelForSeq2SeqLM.from_pretrained(model_dir)
 tokenizer = AutoTokenizer.from_pretrained(model_dir)
 #to device
