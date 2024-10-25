@@ -15,7 +15,7 @@ import torch
 #below would be for the fetched from zendo?
 #model_checkpoint =  "checkpoint-127200/checkpoint-42400"#"checkpoint-118800"
 model_checkpoint = "checkpoint-12276"
-model_name='new/google/flan-t5-small'
+model_name='google/flan-t5-small'
 dataset='sap_sam_2022/filtered'
 max_new_tokens=100
 prediction_output_dir = f'data/evaluation/{dataset}/test/{model_name}_{model_checkpoint}/'
