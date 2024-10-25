@@ -10,9 +10,10 @@ from evaluation.utils import generate_prediction_list, calculate_precision_recal
 from labelparser.label_utils import constraint_splitter
 import torch
 
+#model_checkpoint =  "checkpoint-127200/checkpoint-42400"#"checkpoint-118800"
+model_checkpoint = "checkpoint-12276"
 
-model_checkpoint =  "checkpoint-127200/checkpoint-42400"#"checkpoint-118800"
-model_name='new/google/flan-t5-small'
+model_name='google/flan-t5-small'
 dataset='sap_sam_2022/filtered'
 max_new_tokens=100
 prediction_output_dir = f'data/evaluation/{dataset}/validation/{model_name}_{model_checkpoint}/'
@@ -22,6 +23,7 @@ dataset_for_training_dir = f'data/{dataset}/forTraining'#'data/bpmai/forTraining
 training_dataset_filename = 'training'
 path_to_training_dataset = os.path.join(dataset_for_training_dir,training_dataset_filename)
 data = load_from_disk(path_to_training_dataset)
+print(data)
 validation_data = data['validation'].to_pandas()
 model_case_names = validation_data.id.unique() 
 
