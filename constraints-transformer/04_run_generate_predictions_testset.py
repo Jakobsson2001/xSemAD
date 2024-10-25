@@ -12,7 +12,9 @@ import torch
 
 
 
-model_checkpoint =  "checkpoint-127200/checkpoint-42400"#"checkpoint-118800"
+#below would be for the fetched from zendo?
+#model_checkpoint =  "checkpoint-127200/checkpoint-42400"#"checkpoint-118800"
+model_checkpoint = "checkpoint-12276"
 model_name='new/google/flan-t5-small'
 dataset='sap_sam_2022/filtered'
 max_new_tokens=100
@@ -33,7 +35,7 @@ with open(path_to_all_constraint_types_file,'rb') as f:
     all_constraint_types = pickle.load(f)
 
 #load model
-model_dir = f"../data/model/{dataset}/{model_name}/{model_checkpoint}"
+model_dir = f"data/model/{dataset}/{model_name}/{model_checkpoint}"
 model = AutoModelForSeq2SeqLM.from_pretrained(model_dir)
 tokenizer = AutoTokenizer.from_pretrained(model_dir)
 #to device
