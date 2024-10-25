@@ -20,7 +20,8 @@ prediction_output_dir = f'data/evaluation/{dataset}/test/{model_name}_{model_che
 
 
 # load case names from test set. Only the one bert and svm could handle 
-with open('../../ml-semantic-anomaly-dection/evaluation_sap_sam_2022_test_case_names.pkl', 'rb') as f:
+#with open('../../ml-semantic-anomaly-dection/evaluation_sap_sam_2022_test_case_names.pkl', 'rb') as f:
+with open('evaluation_sap_sam_2022_test_case_names_unseen_labels.pkl', 'rb') as f:
     model_case_names = pickle.load(f)
 
 
