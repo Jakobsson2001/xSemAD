@@ -15,8 +15,8 @@ path_to_true_constraints='data/sap_sam_2022/filtered/constraints_to_log_labels'
 constraints_to_be_grouped = ['Response', 'Precedence','Succession','Alternate Succession', 'Alternate Precedence','Alternate Response','Choice','Co-Existence']
 
 models= [
-    (test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_evf', constraints_to_be_grouped, None, 0.73,'evaluation_sap_sam_2022_test'),
-    (test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_seperated', None, None,0.73,'evaluation_sap_sam_2022_test'),
+    (test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_evf', constraints_to_be_grouped, None, 0.73),
+    (test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_seperated', None, None,0.73),
     # 100% UNSEEN DATA
     #(test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_evf_unseen', constraints_to_be_grouped, unseen_case_names, 0.73,'evaluation_sap_sam_2022_test'),
     #(test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_evf_unseen_065', constraints_to_be_grouped, unseen_case_names, 0.65,'evaluation_sap_sam_2022_test'),
@@ -24,9 +24,6 @@ models= [
 ]
 
 for model in models:
-    print("--------- MODEL---------")
-    print(*model[:-1])
-    print("------------------------ \n\n")
     print('----- ', model[3],' -----')
     result =  evaluate_constraints(*model[:-1])
     output_file_name= f'{model[-1]}_{model[3]}.pkl'
