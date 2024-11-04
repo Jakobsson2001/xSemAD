@@ -18,6 +18,7 @@ for file_path in glob(os.path.join(prediction_output_dir, '*.pkl')):
     with open(file_path, 'rb') as f:
         results = pickle.load(f)
     
+    print(results)
     # Convert each result into a DataFrame with the expected structure
     for constraint_type, predictions in results:
         for pred in predictions:
