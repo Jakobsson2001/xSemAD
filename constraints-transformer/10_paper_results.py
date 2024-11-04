@@ -25,7 +25,8 @@ models= [
 
 for model in models:
     print('----- ', model[3],' -----')
-    result =  evaluate_constraints(model)
+    print(*model[:])
+    result =  evaluate_constraints(*model[:])
     output_file_name= f'{model[-1]}_{model[3]}.pkl'
     df = pd.DataFrame(result)
     df.to_pickle(output_file_name)
