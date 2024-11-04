@@ -26,7 +26,9 @@ models= [
 ]
 
 for model in models:
+    print("--------- MODEL---------")
     print(model)
+    print("------------------------ \n\n")
     print('----- ', model[3],' -----')
     result =  evaluate_constraints(*model[:-1])
     output_file_name= f'{model[-1]}_{model[3]}.pkl'
