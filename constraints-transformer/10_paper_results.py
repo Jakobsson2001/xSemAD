@@ -21,11 +21,13 @@ for file_path in glob(os.path.join(prediction_output_dir, '*.pkl')):
     # Convert each result into a DataFrame with the expected structure
     for constraint_type, predictions in results:
         for pred in predictions:
+            print(pred)
+            precision, recall, f1 = pred  # Access by position
             all_results.append({
                 'constraint_type': constraint_type,
-                'precision': pred.get('precision', 0),
-                'recall': pred.get('recall', 0),
-                'f1': pred.get('f1', 0)
+                'precision': precision,
+                'recall': recall,
+                'f1': f1
             })
 
 # Convert the accumulated list into a DataFrame
