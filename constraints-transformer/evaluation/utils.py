@@ -332,6 +332,7 @@ def evaluate_constraints(test_case_names,
                 if xsemad_threshold is not None:
                     pred_pairs_temp = [item for sublist in pred_pairs_temp for item in sublist[1]]
                     pred_pairs_temp = [i for i in pred_pairs_temp if i[1] > xsemad_threshold]  # Apply threshold filtering
+                    print(pred_pairs_temp)
             # Assuming pred_pairs_temp structure adjustment for XSEMAD predictions is needed
             pred_pairs_temp = sort_constraints([i[0] for i in pred_pairs_temp], remove_duplicates=True) if xsemad_threshold is not None else sort_constraints(pred_pairs_temp, remove_duplicates=True)
 
