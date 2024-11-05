@@ -320,7 +320,6 @@ def evaluate_constraints(test_case_names,
         test_case_names=[item for item in unseen_model_case_names if item in test_case_names]
     for model_case_name in tqdm(test_case_names, desc='process evaluation'):
         # Load true constraints
-        print(f'{path_to_true_constraints}/{model_case_name}.CONSTRAINTS.pkl')
         with open(f'{path_to_true_constraints}/{model_case_name}.CONSTRAINTS.pkl','rb') as f:
             true_constraints = pickle.load(f)
             all_constraint_types_in_model = list(set([i.split('[')[0] for i in true_constraints]))
