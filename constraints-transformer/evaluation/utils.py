@@ -363,7 +363,9 @@ def evaluate_constraints(test_case_names,
                         evaluation_results.append({'constraint_type':c, 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
                         if(recall == 0 and precision == 0):
                             nrZeroes+=1
+                            print(c)
                         #print(evaluation_results)
 
-            print(nrZeroes)
+            print(nrZeroes, "?=")
+            print(len(constraints_of_interest))
     return evaluation_results
