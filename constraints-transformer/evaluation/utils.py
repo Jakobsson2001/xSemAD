@@ -282,22 +282,6 @@ def sanitize_label(label):
     label = label.lower()
     return label
 
-def calculate_precision_recall_f1_SVM_BERT(true_list, prediction_list):
-    intersection_num = len(list(set(true_list).intersection(set(prediction_list))))
-    recall = intersection_num/len(true_list)
-    if len(prediction_list)!=0:
-        precision = intersection_num/len(prediction_list)
-        if (precision+recall)!= 0:
-            f1 = (2*precision*recall)/(precision+recall)
-            return precision, recall, f1
-        return precision, recall, 0
-    else:
-        precision = 0
-        if (precision+recall)!= 0:
-            f1 = (2*precision*recall)/(precision+recall)
-            return precision, recall, f1
-        return precision, recall, 0
-
 def evaluate_constraints(test_case_names, 
                          path_to_true_constraints, 
                          path_to_pred_constraints,
@@ -316,6 +300,17 @@ def evaluate_constraints(test_case_names,
                                                     'Precedence',
                                                     'Response',
                                                     'Succession']):
+     # Print all parameters and their values
+    print("evaluate_constraints called with parameters:")
+    print(f"test_case_names: {test_case_names}")
+    print(f"path_to_true_constraints: {path_to_true_constraints}")
+    print(f"path_to_pred_constraints: {path_to_pred_constraints}")
+    print(f"MODEL_NAME: {MODEL_NAME}")
+    print(f"group_constraint_types: {group_constraint_types}")
+    print(f"unseen_model_case_names: {unseen_model_case_names}")
+    print(f"xsemad_threshold: {xsemad_threshold}")
+    print(f"constraints_of_interest: {constraints_of_interest}")
+
     evaluation_results = []
     model_type = MODEL_NAME.split('_')[0]
 
@@ -325,6 +320,7 @@ def evaluate_constraints(test_case_names,
         test_case_names=[item for item in unseen_model_case_names if item in test_case_names]
     for model_case_name in tqdm(test_case_names, desc='process evaluation'):
         # Load true constraints
+        print(f'{path_to_true_constraints}/{model_case_name}.CONSTRAINTS.pkl')
         with open(f'{path_to_true_constraints}/{model_case_name}.CONSTRAINTS.pkl','rb') as f:
             true_constraints = pickle.load(f)
             all_constraint_types_in_model = list(set([i.split('[')[0] for i in true_constraints]))
@@ -335,54 +331,42 @@ def evaluate_constraints(test_case_names,
         # PREDICTION
         path_to_pred_file = f'{path_to_pred_constraints}/{model_case_name}.{pred_file_type}'
         
-        if model_type in ['SVM', 'BERT']:
+        if pred_file_type in ['json']:
+            with open(path_to_pred_file) as f:
+                mineful_constraints_json=json.load(f)
+            pred_pairs_temp = sort_constraints(format_minerful_constraints(mineful_constraints_json), remove_duplicates=True)
+
+        if pred_file_type in ['pkl','pickle']:
             with open(path_to_pred_file, 'rb') as f:
-                pred_pairs_temp = pickle.load(f)
-            #get only eventually-follows constraints
-            true_pairs = [i for i in true_constraints if (list(filter(i.startswith, group_constraint_types)) != [])] 
-            true_pairs = [sanitize_label(i.split('[')[1][:-1]) for i in true_pairs]
-            pred_pairs = [sanitize_label(', '.join(i).lower()) for i in list(pred_pairs_temp)]
+                pred_pairs_temp = pickle.load(f)#pred_pairs_temp = sort_constraints(pickle.load(f), remove_duplicates=True)
+                # For XSEMAD, filter predictions based on the threshold
+                if xsemad_threshold is not None:
+                    pred_pairs_temp = [item for sublist in pred_pairs_temp for item in sublist[1]]
+                    pred_pairs_temp = [i for i in pred_pairs_temp if i[1] > xsemad_threshold]  # Apply threshold filtering
+            # Assuming pred_pairs_temp structure adjustment for XSEMAD predictions is needed
+            pred_pairs_temp = sort_constraints([i[0] for i in pred_pairs_temp], remove_duplicates=True) if xsemad_threshold is not None else sort_constraints(pred_pairs_temp, remove_duplicates=True)
+
+        if group_constraint_types is not None:
+            true_pairs=[]
+            pred_pairs=[]
+            for c in constraints_of_interest:
+                if c in group_constraint_types:
+                    true_pairs_ = [i.split('[')[1][:-1] for i in true_constraints if i.startswith(c+ '[') ]
+                    true_pairs+=true_pairs_
+                    pred_pairs_ = [i.split('[')[1][:-1] for i in pred_pairs_temp if i.startswith(c+ '[')] 
+                    pred_pairs+=pred_pairs_
             if len(true_pairs)>0:
-                precision, recall, f1 = calculate_precision_recall_f1_SVM_BERT(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
+                precision, recall, f1 = calculate_precision_recall_f1(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
                 evaluation_results.append({'constraint_type':', '.join(group_constraint_types), 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
-                
-
         else:
-            if pred_file_type in ['json']:
-                with open(path_to_pred_file) as f:
-                    mineful_constraints_json=json.load(f)
-                pred_pairs_temp = sort_constraints(format_minerful_constraints(mineful_constraints_json), remove_duplicates=True)
-            if pred_file_type in ['pkl','pickle']:
-                with open(path_to_pred_file, 'rb') as f:
-                    pred_pairs_temp = pickle.load(f)#pred_pairs_temp = sort_constraints(pickle.load(f), remove_duplicates=True)
-                    # For XSEMAD, filter predictions based on the threshold
-                    if xsemad_threshold is not None:
-                        pred_pairs_temp = [item for sublist in pred_pairs_temp for item in sublist[1]]
-                        pred_pairs_temp = [i for i in pred_pairs_temp if i[1] > xsemad_threshold]  # Apply threshold filtering
-                # Assuming pred_pairs_temp structure adjustment for XSEMAD predictions is needed
-                pred_pairs_temp = sort_constraints([i[0] for i in pred_pairs_temp], remove_duplicates=True) if xsemad_threshold is not None else sort_constraints(pred_pairs_temp, remove_duplicates=True)
-
-
-            if group_constraint_types is not None:
+            for c in constraints_of_interest:
                 true_pairs=[]
                 pred_pairs=[]
-                for c in constraints_of_interest:
-                    if c in group_constraint_types:
-                        true_pairs_ = [i.split('[')[1][:-1] for i in true_constraints if i.startswith(c+ '[') ]
-                        true_pairs+=true_pairs_
-                        pred_pairs_ = [i.split('[')[1][:-1] for i in pred_pairs_temp if i.startswith(c+ '[')] 
-                        pred_pairs+=pred_pairs_
-                if len(true_pairs)>0:
-                    precision, recall, f1 = calculate_precision_recall_f1(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
-                    evaluation_results.append({'constraint_type':', '.join(group_constraint_types), 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
-            else:
-                for c in constraints_of_interest:
-                    true_pairs=[]
-                    pred_pairs=[]
-                    if c in all_constraint_types_in_model:
-                        true_pairs = [i.split('[')[1][:-1] for i in true_constraints if i.startswith(c+ '[') ]
-                        pred_pairs = [i.split('[')[1][:-1] for i in pred_pairs_temp if i.startswith(c+ '[')] 
-                        if len(true_pairs)>0:
-                            precision, recall, f1 = calculate_precision_recall_f1(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
-                            evaluation_results.append({'constraint_type':c, 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
+                if c in all_constraint_types_in_model:
+                    true_pairs = [i.split('[')[1][:-1] for i in true_constraints if i.startswith(c+ '[') ]
+                    pred_pairs = [i.split('[')[1][:-1] for i in pred_pairs_temp if i.startswith(c+ '[')] 
+                    if len(true_pairs)>0:
+                        precision, recall, f1 = calculate_precision_recall_f1(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
+                        evaluation_results.append({'constraint_type':c, 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
+                            
     return evaluation_results
