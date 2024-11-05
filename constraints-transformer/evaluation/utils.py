@@ -358,7 +358,10 @@ def evaluate_constraints(test_case_names,
                         precision, recall, f1 = calculate_precision_recall_f1(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
                         evaluation_results.append({'constraint_type':c, 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
 
+    
+        print("\n\n True Pair:")
         print(true_pairs)
+        print("\n\n Pred Pair:")
         print(pred_pairs)
                             
     return evaluation_results
