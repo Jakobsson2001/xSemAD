@@ -16,11 +16,11 @@ constraints_to_be_grouped = ['Response', 'Precedence','Succession','Alternate Su
 
 models= [
     (test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_evf', constraints_to_be_grouped, None, 0.73),
-    (test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_seperated', None, None,0.73),
+    #(test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_seperated', None, None,0.73),
     # 100% UNSEEN DATA
-    #(test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_evf_unseen', constraints_to_be_grouped, unseen_case_names, 0.73,'evaluation_sap_sam_2022_test'),
-    #(test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_evf_unseen_065', constraints_to_be_grouped, unseen_case_names, 0.65,'evaluation_sap_sam_2022_test'),
-    #(test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_seperated_unseen_065', None, unseen_case_names, 0.65,'evaluation_sap_sam_2022_test'),
+    #(test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_evf_unseen', constraints_to_be_grouped, unseen_case_names, 0.73),
+    #(test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_evf_unseen_065', constraints_to_be_grouped, unseen_case_names, 0.65),
+    #(test_case_names, path_to_true_constraints, prediction_output_dir, 'xSemAD_seperated_unseen_065', None, unseen_case_names, 0.65),
 ]
 
 for model in models:
