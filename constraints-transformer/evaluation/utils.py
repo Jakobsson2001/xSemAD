@@ -363,7 +363,7 @@ def evaluate_constraints(test_case_names,
                         nrZeroes = 0
                         if(recall == 0 and precision == 0):
                             nrZeroes+=1
-                        print(evaluation_results)
+                        #print(evaluation_results)
 
             print(nrZeroes)
     return evaluation_results
