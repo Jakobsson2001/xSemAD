@@ -300,16 +300,6 @@ def evaluate_constraints(test_case_names,
                                                     'Precedence',
                                                     'Response',
                                                     'Succession']):
-     # Print all parameters and their values
-    print("evaluate_constraints called with parameters:")
-    print(f"test_case_names: {test_case_names}")
-    print(f"path_to_true_constraints: {path_to_true_constraints}")
-    print(f"path_to_pred_constraints: {path_to_pred_constraints}")
-    print(f"MODEL_NAME: {MODEL_NAME}")
-    print(f"group_constraint_types: {group_constraint_types}")
-    print(f"unseen_model_case_names: {unseen_model_case_names}")
-    print(f"xsemad_threshold: {xsemad_threshold}")
-    print(f"constraints_of_interest: {constraints_of_interest}")
 
     evaluation_results = []
     model_type = MODEL_NAME.split('_')[0]
@@ -367,5 +357,8 @@ def evaluate_constraints(test_case_names,
                     if len(true_pairs)>0:
                         precision, recall, f1 = calculate_precision_recall_f1(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
                         evaluation_results.append({'constraint_type':c, 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
+
+        print(true_pairs)
+        print(pred_pairs)
                             
     return evaluation_results
