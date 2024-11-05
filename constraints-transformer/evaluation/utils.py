@@ -340,7 +340,8 @@ def evaluate_constraints(test_case_names,
             pred_pairs=[]
             for c in constraints_of_interest:
                 if c in group_constraint_types:
-                    print("C", c, "\n\n")
+                    print("\n C:", c, "\n")
+                    print(true_constraints, "\n")
                     true_pairs_ = [i.split('[')[1][:-1] for i in true_constraints if i.startswith(c+ '[') ]
                     true_pairs+=true_pairs_
                     pred_pairs_ = [i.split('[')[1][:-1] for i in pred_pairs_temp if i.startswith(c+ '[')] 
