@@ -360,6 +360,7 @@ def evaluate_constraints(test_case_names,
                     true_pairs = [i.split('[')[1][:-1] for i in true_constraints if i.startswith(c+ '[') ]
                     pred_pairs = [i.split('[')[1][:-1] for i in pred_pairs_temp if i.startswith(c+ '[')] 
                     if len(true_pairs)>0:
+                        print(len(pred_pairs), " : ",len(true_pairs))
                         precision, recall, f1 = calculate_precision_recall_f1(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
                         evaluation_results.append({'constraint_type':c, 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
                         if(recall == 0 and precision == 0):
