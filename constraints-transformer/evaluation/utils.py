@@ -74,17 +74,6 @@ def generate_prediction_list(input_sequences, tokenizer, model, num_recommondati
     return recommendations_with_score
 
 
-def calculate_precision_recall(true_list, prediction_list):
-    intersection_num = len(list(set(true_list).intersection(set(prediction_list))))
-    
-    recall = intersection_num/len(true_list)
-    if len(prediction_list)!=0:
-        precision = intersection_num/len(prediction_list)
-        return precision, recall
-    else:
-        precision = 0
-        return precision, recall
-
 def sort_constraints(constraints_list,correct_spelling=False, remove_duplicates=True):
     result=[]
     for c in constraints_list:
