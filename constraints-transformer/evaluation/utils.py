@@ -124,20 +124,48 @@ def sort_constraints_for_eval(constraints_list,correct_spelling=False, remove_du
 
 
 def calculate_precision_recall_f1(true_list, prediction_list):
-    intersection_num = len(list(set(true_list).intersection(set(prediction_list))))
-    recall = intersection_num/len(true_list)
-    if len(prediction_list)!=0:
-        precision = intersection_num/len(prediction_list)
-        if (precision+recall)!= 0:
-            f1 = (2*precision*recall)/(precision+recall)
-            return precision, recall, f1
-        return precision, recall, 0
+    """
+    Calculate precision, recall, and F1 score based on true and predicted lists of items.
+    
+    Parameters:
+    - true_list (list): The list of actual relevant items (ground truth), 
+      representing the sum of true positives and false negatives.
+    - prediction_list (list): The list of predicted items, which may overlap with true_list.
+
+    Returns:
+    - tuple: A tuple (precision, recall, f1) where:
+        - precision (float): The ratio of correctly predicted items to the total predicted items.
+        - recall (float): The ratio of correctly predicted items to the total actual items in true_list.
+        - f1 (float): The harmonic mean of precision and recall.
+      If `true_list` is empty (no items to evaluate), or if both `true_list` and `prediction_list` are empty,
+      returns (None, None, None).
+    
+    Notes:
+    - Precision is set to 0 if `prediction_list` is empty, provided `true_list` is non-empty.
+    - Recall and F1 are only calculated if `true_list` is non-empty.
+    """
+    
+    # Return None for all scores if there are no true items to evaluate
+    if len(true_list) == 0:
+        return None, None, None
+    
+    # Calculate the number of correctly predicted items (True Positives) by finding the intersection
+    # between the sets of true and predicted items, then taking the length of that intersection.
+    intersection_num = len(set(true_list).intersection(set(prediction_list)))
+    
+    # Calculate recall
+    recall = intersection_num / len(true_list)
+    
+    # Calculate precision
+    precision = intersection_num / len(prediction_list) if len(prediction_list) > 0 else 0
+    
+    # Calculate F1 score
+    if (precision + recall) > 0:
+        f1 = (2 * precision * recall) / (precision + recall)
     else:
-        precision = 0
-        if (precision+recall)!= 0:
-            f1 = (2*precision*recall)/(precision+recall)
-            return precision, recall, f1
-        return precision, recall, 0
+        f1 = 0
+    
+    return precision, recall, f1
 
 
 NON_ALPHANUM = re.compile('[^a-z,A-Z]')
