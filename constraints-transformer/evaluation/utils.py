@@ -134,39 +134,6 @@ def sort_constraints_for_eval(constraints_list,correct_spelling=False, remove_du
     return result
 
 
-
-def format_minerful_constraints(mineful_constraints_json):
-    constraints_of_interest_encoder = {'Precedence':'Precedence',
-                                        'AlternatePrecedence':'Alternate Precedence',
-                                        'CoExistence':'Co-Existence',
-                                        'Response':'Response',
-                                        'AlternateResponse':'Alternate Response',
-                                        'Succession':'Succession',
-                                        'AlternateSuccession':'Alternate Succession',
-                                        'Init':'Init',
-                                        'End':'End',
-                                        'Choice':'Choice', # not defined in minerful
-                                        'ExclusiveChoice':'Exclusive Choice' # not defined in minerful
-                                        }
-
-    def format_constraints_minerful(constraint_dict):
-        # Extract the 'template' value
-        template = constraint_dict['template']
-        # Extract the 'parameters' list, flatten it, and join each parameter with a comma
-        parameters = ', '.join([item for sublist in constraint_dict['parameters'] for item in sublist])
-        # Combine the template and parameters into the desired format
-        formatted_string = f"{constraints_of_interest_encoder[template]}[{parameters}]"
-        return formatted_string
-
-    constraints_minerful = []
-    for constraint in mineful_constraints_json['constraints']:
-        constraint_type = constraint['template']
-        if constraint_type in constraints_of_interest_encoder.keys():
-            #print(constraint)
-            #print(format_constraint_minerful(constraint))
-            constraints_minerful.append(format_constraints_minerful(constraint))
-    return constraints_minerful
-
 def calculate_precision_recall_f1(true_list, prediction_list):
     intersection_num = len(list(set(true_list).intersection(set(prediction_list))))
     recall = intersection_num/len(true_list)
@@ -240,16 +207,10 @@ def evaluate_constraints(test_case_names,
             all_constraint_types_in_model = list(set([i.split('[')[0] for i in true_constraints]))
             true_constraints = sort_constraints(true_constraints, remove_duplicates=True)
         
-        
         # Load predictions
         # PREDICTION
         path_to_pred_file = f'{path_to_pred_constraints}/{model_case_name}.{pred_file_type}'
         
-        if pred_file_type in ['json']:
-            with open(path_to_pred_file) as f:
-                mineful_constraints_json=json.load(f)
-            pred_pairs_temp = sort_constraints(format_minerful_constraints(mineful_constraints_json), remove_duplicates=True)
-
         if pred_file_type in ['pkl','pickle']:
             with open(path_to_pred_file, 'rb') as f:
                 pred_pairs_temp = pickle.load(f)#pred_pairs_temp = sort_constraints(pickle.load(f), remove_duplicates=True)
