@@ -1,6 +1,6 @@
 from more_itertools import chunked
 import numpy as np
-from labelparser.label_utils import constraint_splitter
+from labelparser.label_utils import constraint_splitter, sanitize_label
 import os
 import json
 import pickle
@@ -166,30 +166,6 @@ def calculate_precision_recall_f1(true_list, prediction_list):
         f1 = 0
     
     return precision, recall, f1
-
-NON_ALPHANUM = re.compile('[^a-z,A-Z]')
-CAMEL_PATTERN_1 = re.compile('(.)([A-Z][a-z]+)')
-CAMEL_PATTERN_2 = re.compile('([a-z0-9])([A-Z])')
-def _camel_to_white(label):
-    label = CAMEL_PATTERN_1.sub(r'\1 \2', label)
-    return CAMEL_PATTERN_2.sub(r'\1 \2', label)
-
-# Used in JSONToPetriNetConverter in 00_run_preprocess
-def sanitize_label(label):
-    # handle some special cases
-    label = label.replace('\n', ' ').replace('\r', '')
-    label = label.replace('(s)', 's').replace('&', 'and').strip()
-    label = re.sub(' +', ' ', label)
-    # turn any non alphanumeric characters into whitespace
-    label = NON_ALPHANUM.sub(' ', label)
-    label = label.strip()
-    # remove single character parts
-    label = " ".join([part for part in label.split() if len(part) > 1])
-    # handle camel case
-    label = _camel_to_white(label)
-    # make all lower case
-    label = label.lower()
-    return label
 
 def evaluate_constraints(test_case_names, 
                          path_to_true_constraints, 
