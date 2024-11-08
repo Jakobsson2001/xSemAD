@@ -167,7 +167,6 @@ def calculate_precision_recall_f1(true_list, prediction_list):
     
     return precision, recall, f1
 
-
 NON_ALPHANUM = re.compile('[^a-z,A-Z]')
 CAMEL_PATTERN_1 = re.compile('(.)([A-Z][a-z]+)')
 CAMEL_PATTERN_2 = re.compile('([a-z0-9])([A-Z])')
@@ -175,6 +174,7 @@ def _camel_to_white(label):
     label = CAMEL_PATTERN_1.sub(r'\1 \2', label)
     return CAMEL_PATTERN_2.sub(r'\1 \2', label)
 
+# Used in JSONToPetriNetConverter in 00_run_preprocess
 def sanitize_label(label):
     # handle some special cases
     label = label.replace('\n', ' ').replace('\r', '')
@@ -197,7 +197,7 @@ def evaluate_constraints(test_case_names,
                          MODEL_NAME=None,
                          group_constraint_types=None,
                          unseen_model_case_names=None,
-                         xsemad_threshold=None,
+                         xsemad_threshold=0.68, # Find optimal threshold, insert here as standard
                          constraints_of_interest = ['Alternate Precedence',
                                                     'Alternate Response',
                                                     'Alternate Succession',
@@ -232,12 +232,11 @@ def evaluate_constraints(test_case_names,
             with open(path_to_pred_file, 'rb') as f:
                 pred_pairs_temp = pickle.load(f)#pred_pairs_temp = sort_constraints(pickle.load(f), remove_duplicates=True)
                 # For XSEMAD, filter predictions based on the threshold
-                if xsemad_threshold is not None:
-                    pred_pairs_temp = [item for sublist in pred_pairs_temp for item in sublist[1]]
-                    pred_pairs_temp = [i for i in pred_pairs_temp if i[1] > xsemad_threshold]  # Apply threshold filtering
-                    print(pred_pairs_temp)
-            # Assuming pred_pairs_temp structure adjustment for XSEMAD predictions is needed
-            pred_pairs_temp = sort_constraints([i[0] for i in pred_pairs_temp], remove_duplicates=True) if xsemad_threshold is not None else sort_constraints(pred_pairs_temp, remove_duplicates=True)
+                pred_pairs_temp = [item for sublist in pred_pairs_temp for item in sublist[1]]
+                pred_pairs_temp = [i for i in pred_pairs_temp if i[1] > xsemad_threshold]  # Apply threshold filtering
+
+            # pred_pairs_temp structure adjustment for XSEMAD predictions is needed
+            pred_pairs_temp = sort_constraints([i[0] for i in pred_pairs_temp], remove_duplicates=True)
 
         if group_constraint_types is not None:
             true_pairs=[]
