@@ -61,32 +61,73 @@ def sort_constraints(constraints_list,correct_spelling=False, remove_duplicates=
     return result
 
 
-def generate_prediction_list(input_sequences, tokenizer, model, num_recommondations, max_new_tokens=200, device='cpu'):
-    inputs = tokenizer(input_sequences,return_tensors='pt',padding=True).to(device)
+def generate_prediction_list(input_sequences, tokenizer, model, num_recommendations, max_new_tokens=200, device='cpu'):
+    """
+    Generate a list of predictions for a given input sequence using a sequence-to-sequence language model, 
+    along with associated confidence scores based on sequence probabilities.
+
+    Parameters:
+    - input_sequences (str or list of str): The input text(s) for which predictions are generated. 
+      Can be a single string or a list of strings.
+    - tokenizer: The tokenizer associated with the model, used to encode input text and decode predictions.
+    - model: The pre-trained sequence-to-sequence language model (e.g., loaded with AutoModelForSeq2SeqLM) to 
+      generate predictions.
+    - num_recommendations (int): The number of recommended sequences to generate per input sequence.
+    - max_new_tokens (int, optional): Maximum number of new tokens to generate per sequence. Defaults to 200.
+    - device (str, optional): The device to run the model on ('cpu' or 'cuda'). Defaults to 'cpu'.
+
+    Returns:
+    - recommendations_with_score (list of tuples): A list of tuples, where each tuple contains:
+        - The generated prediction (str) for the input sequence.
+        - The associated probability score (float), rounded to three decimal places, representing the 
+          model’s confidence in the prediction. Scores are converted from log-probabilities.
+
+    Notes:
+    - Log-probabilities returned by the model for each sequence are converted to probabilities using `np.exp`.
+    - High values for `num_recommendations` or `max_new_tokens` may slow down performance.
+    - The `no_repeat_ngram_size` parameter is set to avoid repeated n-grams within each sequence.
+    """
+
+    # Tokenize input sequences for the model and move tensors to the specified device
+    inputs = tokenizer(input_sequences, return_tensors='pt', padding=True).to(device)
+    
+    # Generate sequences with specified generation parameters
     sample_output = model.generate(
-                max_new_tokens = max_new_tokens,
-                input_ids=inputs['input_ids'],
-                attention_mask=inputs['attention_mask'],
-                num_return_sequences=num_recommondations,
-                num_beams=num_recommondations,
-                no_repeat_ngram_size = 50, # no word repetitions
-                early_stopping=True, #True,
-                return_dict_in_generate=True,
-                output_scores=True
-                )
-    predictions=[]
-    scores=[]
-    for preds_sequence,scores_sequence,sequence in zip(chunked(sample_output["sequences"].cpu(),num_recommondations),
-                                                       chunked(sample_output["sequences_scores"].cpu(),num_recommondations),input_sequences):
-        preds_sequence = tokenizer.batch_decode(preds_sequence, skip_special_tokens=False)
+        max_new_tokens=max_new_tokens,
+        input_ids=inputs['input_ids'],
+        attention_mask=inputs['attention_mask'],
+        num_return_sequences=num_recommendations,
+        num_beams=num_recommendations,
+        no_repeat_ngram_size=50,  # Prevent repetition of n-grams within each generated sequence
+        early_stopping=True,
+        return_dict_in_generate=True,
+        output_scores=True
+    )
+    
+    predictions, scores = [], []
+    
+    # Process each generated sequence and its associated score
+    for preds_sequence, scores_sequence, sequence in zip(
+            chunked(sample_output["sequences"].cpu(), num_recommendations),
+            chunked(sample_output["sequences_scores"].cpu(), num_recommendations),
+            input_sequences):
+        
+        # Decode the generated sequences back to text and clean up each prediction
+        preds_sequence = tokenizer.batch_decode(preds_sequence, skip_special_tokens=True)
         preds_sequence = [_prediction_cleaning(p) for p in preds_sequence]
-        #preds_sequence = list(set([p for p in preds_sequence if p!=""]))[:num_recommondations]
-        #if len(preds_sequence)<10:
-        #   print("length of rec list"+str(len(preds_sequence)))
+        
+        # Extend the list of predictions and scores
         predictions.extend(preds_sequence)
         scores.extend(scores_sequence)
-    scores = np.exp(scores)#softmax(scores)#np.exp(scores)#1/(1+np.exp([-s for s in scores])) #np.exp(scores)
-    recommendations_with_score = [(r,round(float(s[0]),3)) for r,s in __ranking_max(predictions, scores,num_recommondations)]
+    
+    # Convert log-probability scores to probabilities
+    scores = np.exp(scores)  # Converts log-probabilities to probabilities in the range [0, 1]
+    
+    # Rank predictions based on scores, select the top `num_recommendations`, and round scores to three decimals
+    recommendations_with_score = [
+        (r, round(float(s[0]), 3)) for r, s in __ranking_max(predictions, scores, num_recommendations)
+    ]
+    
     return recommendations_with_score
 
 
@@ -99,6 +140,7 @@ def filter_prediction_list_for_eval(model_labels,prediction_c_list):
             if set(labels).issubset(model_labels):
                 result.append((prediction[0],prediction[1]))
     return result
+
 
 def sort_constraints_for_eval(constraints_list,correct_spelling=False, remove_duplicates=True):
     result=[]
