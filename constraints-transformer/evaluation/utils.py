@@ -127,6 +127,10 @@ def generate_prediction_list(input_sequences, tokenizer, model, num_recommendati
     recommendations_with_score = [
         (r, round(float(s[0]), 3)) for r, s in __ranking_max(predictions, scores, num_recommendations)
     ]
+
+    # Calculate and print the mean score for insight
+    mean_score = np.mean([s[1] for s in recommendations_with_score])
+    print(f"Mean confidence score for generated predictions: {mean_score:.3f}")
     
     return recommendations_with_score
 
