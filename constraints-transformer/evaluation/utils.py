@@ -7,13 +7,13 @@ import pickle
 from tqdm import tqdm
 import re
 
-def prediction_cleaning(p):
+def _prediction_cleaning(p):
     p = p.replace("<pad>","").replace("</s>","")
     p = p.strip()
     p = " ".join(p.split()) 
     return p
 
-def collect_scores(predictions,scores):
+def _collect_scores(predictions,scores):
     predictions_dict = dict()
     maxLen = 1
     for p,s in zip(predictions,scores):
@@ -26,7 +26,7 @@ def collect_scores(predictions,scores):
     return predictions_dict, maxLen
 
 def __ranking_max(predictions, scores,num_recommondations):
-    predictions_dict, maxLen = collect_scores(predictions,scores)
+    predictions_dict, maxLen = _collect_scores(predictions,scores)
     # save the activities together with their confidences in a list but such that every activity has the same number of confidences (add 0's)
     # also sort the confidences per activity
     predictions_list = []
@@ -63,7 +63,7 @@ def generate_prediction_list(input_sequences, tokenizer, model, num_recommondati
     for preds_sequence,scores_sequence,sequence in zip(chunked(sample_output["sequences"].cpu(),num_recommondations),
                                                        chunked(sample_output["sequences_scores"].cpu(),num_recommondations),input_sequences):
         preds_sequence = tokenizer.batch_decode(preds_sequence, skip_special_tokens=False)
-        preds_sequence = [prediction_cleaning(p) for p in preds_sequence]
+        preds_sequence = [_prediction_cleaning(p) for p in preds_sequence]
         #preds_sequence = list(set([p for p in preds_sequence if p!=""]))[:num_recommondations]
         #if len(preds_sequence)<10:
         #   print("length of rec list"+str(len(preds_sequence)))
@@ -123,7 +123,7 @@ def sort_constraints_for_eval(constraints_list,correct_spelling=False, remove_du
     return result
 
 
-def calculate_precision_recall_f1(true_list, prediction_list):
+def _calculate_precision_recall_f1(true_list, prediction_list):
     """
     Calculate precision, recall, and F1 score based on true and predicted lists of items.
     
@@ -167,13 +167,14 @@ def calculate_precision_recall_f1(true_list, prediction_list):
     
     return precision, recall, f1
 
+
 def evaluate_constraints(test_case_names, 
                          path_to_true_constraints, 
                          path_to_pred_constraints,
-                         MODEL_NAME=None,
+                         MODEL_NAME="Unsett",  # Default MODEL_NAME
                          group_constraint_types=None,
                          unseen_model_case_names=None,
-                         xsemad_threshold=0.68, # Find optimal threshold, insert here as standard
+                         xsemad_threshold=0.68, # Default threshold, can be adjusted
                          constraints_of_interest = ['Alternate Precedence',
                                                     'Alternate Response',
                                                     'Alternate Succession',
@@ -185,67 +186,149 @@ def evaluate_constraints(test_case_names,
                                                     'Precedence',
                                                     'Response',
                                                     'Succession']):
+    """
+    Evaluate the performance of a model on various constraint types by calculating precision, 
+    recall, and F1 scores for each specified constraint across a set of test cases.
+
+    Parameters:
+    - test_case_names (list of str): List of test case names to evaluate.
+    - path_to_true_constraints (str): Path to the directory containing the ground truth constraints 
+      for each test case.
+    - path_to_pred_constraints (str): Path to the directory containing the model's predicted 
+      constraints for each test case.
+    - MODEL_NAME (str, optional): Name of the model, used to categorize results. Defaults to "Unsett".
+    - group_constraint_types (list of str, optional): List of constraint types to group together 
+      for a combined evaluation. If provided, precision, recall, and F1 are calculated for the 
+      grouped constraints as a whole.
+    - unseen_model_case_names (list of str, optional): Not sure if needed for this implementationa and
+      what this is for but my best guess is that it is a subset of `test_case_names` representing 
+      cases that were not seen during training. If provided, the evaluation will only consider 
+      cases within this list, allowing for a separate evaluation on "unseen" data to assess 
+      generalization performance.
+    - xsemad_threshold (float, optional): Threshold value for filtering predictions based on 
+      confidence or relevance scores. Only predictions above this threshold are considered 
+      in the evaluation.
+    - constraints_of_interest (list of str, optional): List of constraint types to evaluate. 
+      Only these constraints are considered in both the true and predicted constraints.
+      
+    Returns:
+    - evaluation_results (list of dict): A list where each dictionary contains the evaluation 
+      metrics (precision, recall, F1 score) for a constraint type or grouped constraint. Each 
+      dictionary includes:
+        - 'constraint_type': The constraint type or grouped constraint types being evaluated.
+        - 'model': The model name.
+        - 'precision': The precision score for the constraint(s).
+        - 'recall': The recall score for the constraint(s).
+        - 'f1': The F1 score for the constraint(s).
+        - 'case_name': The name of the test case.
+    
+    Notes:
+    - If both `group_constraint_types` and `constraints_of_interest` are provided, only the 
+      constraints specified in `constraints_of_interest` that match the `group_constraint_types` 
+      will be grouped and evaluated together.
+    - If `unseen_model_case_names` is provided, `test_case_names` will be filtered to only include 
+      cases in both `test_case_names` and `unseen_model_case_names`.
+    """
 
     evaluation_results = []
-    model_type = MODEL_NAME.split('_')[0]
-
-    pred_file_type = os.listdir(path_to_pred_constraints)[0].split('.')[1]
-
+    
     if unseen_model_case_names:
-        test_case_names=[item for item in unseen_model_case_names if item in test_case_names]
-    for model_case_name in tqdm(test_case_names, desc='process evaluation'):
-        # Load true constraints
-        with open(f'{path_to_true_constraints}/{model_case_name}.CONSTRAINTS.pkl','rb') as f:
-            true_constraints = pickle.load(f)
-            all_constraint_types_in_model = list(set([i.split('[')[0] for i in true_constraints]))
-            true_constraints = sort_constraints(true_constraints, remove_duplicates=True)
+        test_case_names = [name for name in unseen_model_case_names if name in test_case_names]
+    
+    for model_case_name in tqdm(test_case_names, desc='Processing evaluations'):
+        true_constraints = _load_constraints(path_to_true_constraints, model_case_name)
+        all_constraint_types_in_model = _extract_constraint_types(true_constraints)
         
-        # Load predictions
-        # PREDICTION
-        path_to_pred_file = f'{path_to_pred_constraints}/{model_case_name}.{pred_file_type}'
+        pred_pairs_temp = _load_predictions(path_to_pred_constraints, model_case_name, xsemad_threshold)
         
-        if pred_file_type in ['pkl','pickle']:
-            with open(path_to_pred_file, 'rb') as f:
-                pred_pairs_temp = pickle.load(f)#pred_pairs_temp = sort_constraints(pickle.load(f), remove_duplicates=True)
-                # For XSEMAD, filter predictions based on the threshold
-                pred_pairs_temp = [item for sublist in pred_pairs_temp for item in sublist[1]]
-                pred_pairs_temp = [i for i in pred_pairs_temp if i[1] > xsemad_threshold]  # Apply threshold filtering
-
-            # pred_pairs_temp structure adjustment for XSEMAD predictions is needed
-            pred_pairs_temp = sort_constraints([i[0] for i in pred_pairs_temp], remove_duplicates=True)
-
         if group_constraint_types is not None:
-            true_pairs=[]
-            pred_pairs=[]
-            for c in constraints_of_interest:
-                if c in group_constraint_types:
-                    print(c)
-                    true_pairs_ = [i.split('[')[1][:-1] for i in true_constraints if i.startswith(c+ '[') ]
-                    print(true_pairs_)
-                    true_pairs+=true_pairs_
-                    pred_pairs_ = [i.split('[')[1][:-1] for i in pred_pairs_temp if i.startswith(c+ '[')] 
-                    pred_pairs+=pred_pairs_
-                    print("\nPred:",pred_pairs_, "\n")
-            if len(true_pairs)>0:
-                precision, recall, f1 = calculate_precision_recall_f1(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
-                evaluation_results.append({'constraint_type':', '.join(group_constraint_types), 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
+            # Perform grouped evaluation and get results
+            result = _grouped_evaluation(true_constraints, pred_pairs_temp, group_constraint_types, constraints_of_interest, model_case_name, MODEL_NAME)
+            if result:
+                evaluation_results.append(result)
         else:
-            nrZeroes = 0
-            for c in constraints_of_interest:
-                true_pairs=[]
-                pred_pairs=[]
-                if c in all_constraint_types_in_model:
-                    true_pairs = [i.split('[')[1][:-1] for i in true_constraints if i.startswith(c+ '[') ]
-                    pred_pairs = [i.split('[')[1][:-1] for i in pred_pairs_temp if i.startswith(c+ '[')] 
-                    if len(true_pairs)>0:
-                        print(len(pred_pairs), " : ",len(true_pairs))
-                        precision, recall, f1 = calculate_precision_recall_f1(true_list=list(set(true_pairs)), prediction_list=list(set(pred_pairs)))
-                        evaluation_results.append({'constraint_type':c, 'model':MODEL_NAME, 'precision':precision,'recall':recall,'f1':f1, 'case_name':model_case_name})
-                        if(recall == 0 and precision == 0):
-                            nrZeroes+=1
-                            print(c)
-                        #print(evaluation_results)
-
-            print(nrZeroes, "?=")
-            print(len(constraints_of_interest))
+            # Perform individual evaluation and get results
+            individual_results = _individual_evaluation(true_constraints, pred_pairs_temp, all_constraint_types_in_model, constraints_of_interest, model_case_name, MODEL_NAME)
+            evaluation_results.extend(individual_results)  # Add all individual results to the main results list
+    
     return evaluation_results
+
+
+def _load_constraints(path, model_case_name):
+    """Load and sort true constraints for a specific test case."""
+    with open(f'{path}/{model_case_name}.CONSTRAINTS.pkl', 'rb') as f:
+        true_constraints = pickle.load(f)
+    return sort_constraints(true_constraints, remove_duplicates=True)
+
+
+def _extract_constraint_types(constraints):
+    """Extract unique constraint types from a list of constraints."""
+    return list(set([constraint.split('[')[0] for constraint in constraints]))
+
+
+def _load_predictions(path, model_case_name, threshold):
+    """Load prediction constraints, applying a threshold filter to get only generated constraints with good enough ranking TODO: is this properly explained?."""
+    path_to_pred_file = f'{path}/{model_case_name}.pkl'
+
+    with open(path_to_pred_file, 'rb') as f:
+        pred_pairs_temp = pickle.load(f)
+    
+    pred_pairs_temp = [item for sublist in pred_pairs_temp for item in sublist[1]]
+    pred_pairs_temp = [i for i in pred_pairs_temp if i[1] > threshold]
+    
+    # Structure adjustment for XSEMAD
+    return sort_constraints([i[0] for i in pred_pairs_temp], remove_duplicates=True)
+
+
+def _grouped_evaluation(true_constraints, pred_constraints, group_types, constraints_of_interest, case_name, model_name):
+    """Evaluate grouped constraint types and return result."""
+    true_pairs, pred_pairs = [], []
+    for constraint_type in constraints_of_interest:
+        if constraint_type in group_types:
+            true_pairs += _extract_pairs(true_constraints, constraint_type)
+            pred_pairs += _extract_pairs(pred_constraints, constraint_type)
+    
+    # Evaluate if there are true pairs
+    if true_pairs:
+        precision, recall, f1 = _calculate_precision_recall_f1(list(set(true_pairs)), list(set(pred_pairs)))
+        return {
+            'constraint_type': ', '.join(group_types),
+            'model': model_name,
+            'precision': precision,
+            'recall': recall,
+            'f1': f1,
+            'case_name': case_name
+        }
+    return None  # Return None if no true pairs were found
+
+
+def _individual_evaluation(true_constraints, pred_constraints, constraint_types_in_model, constraints_of_interest, case_name, model_name):
+    """Evaluate each constraint type individually and return a list of results."""
+    results = []
+    zero_count = 0
+    for constraint_type in constraints_of_interest:
+        if constraint_type in constraint_types_in_model:
+            true_pairs = _extract_pairs(true_constraints, constraint_type)
+            pred_pairs = _extract_pairs(pred_constraints, constraint_type)
+            
+            if true_pairs:
+                precision, recall, f1 = _calculate_precision_recall_f1(list(set(true_pairs)), list(set(pred_pairs)))
+                results.append({
+                    'constraint_type': constraint_type,
+                    'model': model_name,
+                    'precision': precision,
+                    'recall': recall,
+                    'f1': f1,
+                    'case_name': case_name
+                })
+                
+                if recall == 0 and precision == 0:
+                    zero_count += 1
+
+    print(f"Zero-score constraints for {case_name}: {zero_count} out of {len(constraints_of_interest)}")
+    return results  # Return the list of results for each individual constraint
+
+
+def _extract_pairs(constraints, constraint_type):
+    """Extract constraint pairs that match a given type."""
+    return [constraint.split('[')[1][:-1] for constraint in constraints if constraint.startswith(constraint_type + '[')]
