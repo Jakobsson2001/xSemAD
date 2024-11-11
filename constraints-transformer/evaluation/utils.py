@@ -45,6 +45,22 @@ def __ranking_max(predictions, scores,num_recommondations):
     # reduce the sorted list to the top10 activities with their maximum confidences
     return ranking[:num_recommondations]
 
+
+def sort_constraints(constraints_list,correct_spelling=False, remove_duplicates=True):
+    result=[]
+    for c in constraints_list:
+        constraint_type, labels = constraint_splitter(c, correct_spelling=correct_spelling)
+        if labels == None:
+            return result
+        labels = [i.strip().replace('  ',' ').lower() for i in labels]
+        if constraint_type.lower() in ['coice', 'co-existence','exclusive choice']:
+            labels.sort()
+        result.append(f'{constraint_type}['+ ', '.join(labels) +']')
+    if remove_duplicates:
+        result = list(set(result))
+    return result
+
+
 def generate_prediction_list(input_sequences, tokenizer, model, num_recommondations, max_new_tokens=200, device='cpu'):
     inputs = tokenizer(input_sequences,return_tensors='pt',padding=True).to(device)
     sample_output = model.generate(
@@ -73,30 +89,6 @@ def generate_prediction_list(input_sequences, tokenizer, model, num_recommondati
     recommendations_with_score = [(r,round(float(s[0]),3)) for r,s in __ranking_max(predictions, scores,num_recommondations)]
     return recommendations_with_score
 
-
-def sort_constraints(constraints_list,correct_spelling=False, remove_duplicates=True):
-    result=[]
-    for c in constraints_list:
-        constraint_type, labels = constraint_splitter(c, correct_spelling=correct_spelling)
-        if labels == None:
-            return result
-        labels = [i.strip().replace('  ',' ').lower() for i in labels]
-        if constraint_type.lower() in ['coice', 'co-existence','exclusive choice']:
-            labels.sort()
-        result.append(f'{constraint_type}['+ ', '.join(labels) +']')
-    if remove_duplicates:
-        result = list(set(result))
-    return result
-
-def filter_prediction_list(model_labels,prediction_c_list):
-    result=[]
-    for prediction in prediction_c_list:
-        c, labels = constraint_splitter(prediction, correct_spelling=False)
-        if labels != None:
-            labels = [i.strip() for i in labels]
-            if set(labels).issubset(model_labels):
-                result.append(prediction)
-    return result
 
 def filter_prediction_list_for_eval(model_labels,prediction_c_list):
     result=[]

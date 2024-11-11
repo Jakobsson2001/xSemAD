@@ -6,7 +6,7 @@ import os
 import numpy as np 
 from tqdm import tqdm
 import pandas as pd
-from evaluation.utils import generate_prediction_list, calculate_precision_recall, sort_constraints, filter_prediction_list, filter_prediction_list_for_eval,sort_constraints_for_eval
+from evaluation.utils import generate_prediction_list, sort_constraints, filter_prediction_list_for_eval,sort_constraints_for_eval
 from labelparser.label_utils import constraint_splitter
 import torch
 
@@ -17,7 +17,6 @@ model_name='google/flan-t5-small'
 dataset='sap_sam_2022/filtered'
 max_new_tokens=100
 prediction_output_dir = f'data/evaluation/{dataset}/test/{model_name}_{model_checkpoint}/'
-
 
 #load train cases
 dataset_for_training_dir = f'data/{dataset}/forTraining'#'data/bpmai/forTraining_flan_t5'

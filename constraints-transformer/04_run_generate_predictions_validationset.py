@@ -6,7 +6,7 @@ import os
 import numpy as np 
 from tqdm import tqdm
 import pandas as pd
-from evaluation.utils import generate_prediction_list, calculate_precision_recall, sort_constraints, filter_prediction_list, filter_prediction_list_for_eval,sort_constraints_for_eval
+from evaluation.utils import generate_prediction_list, sort_constraints, filter_prediction_list_for_eval,sort_constraints_for_eval
 from labelparser.label_utils import constraint_splitter
 import torch
 
