@@ -67,6 +67,29 @@ pip3 install -r requirements.txt
 # unzip  constraintCheckingUsingLL.zip -d ../../ # TODO: Rename and fix path
 # rm  constraintCheckingUsingLL.zip # Optional: Remove the zip file after extraction
 
+# Download only the dataset Kiran has used
+# Define the target directory for the dataset
+DATASET_DIR="data/sap_sam_2022/"
+
+# Check if the dataset directory exists
+if [ ! -d "$DATASET_DIR" ]; then
+    echo "Dataset directory not found. Proceeding with download and extraction."
+    mkdir -p "$CHECKPOINT_DIR"
+
+    # Download the zip file
+    curl -L -o filtered.zip https://zenodo.org/records/14169034/files/filtered.zip?download=1&preview=1
+
+    # Unzip the downloaded file to the target directory
+    unzip filtered.zip -d "$DATASET_DIR"
+
+    # Optionally, remove the zip file after extraction
+    rm filtered.zip
+
+    echo "Dataset downloaded and extracted successfully."
+else
+    echo "Dataset directory already exists. Skipping download and extraction."
+fi
+
 # Download and extract Kirans most trained xSemAD model 
 # https://zenodo.org/records/13736559?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImYzZGZkNGUyLWIyMjctNGEzNy1hODMzLWM4YTVlYTMwZTA2ZSIsImRhdGEiOnt9LCJyYW5kb20iOiJhMDE0NDE1MTZiMTc3OWZiM2YwMzRmNmUyODkzZjgyZCJ9.BQ0_d_T62NAggiaIGJfGEeWGWN_aJt-AcbHfWDTEYO3p1Wy0hzMlF3ZcWVClT4Ih9vtNjsBdmua4JRU1Im0teg
 # Define the target directory
