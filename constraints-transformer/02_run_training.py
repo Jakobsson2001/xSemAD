@@ -45,12 +45,9 @@ early_stopping_callback = EarlyStoppingCallback(early_stopping_patience=20)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint)
 #model = SwitchTransformersEncoderModel.from_pretrained(model_checkpoint)
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print('---------------------')
-print(device)
 gpu_count = torch.cuda.device_count()
 gpu_name = torch.cuda.get_device_name(0)
 cuda_version = torch.version.cuda
-print('---------------------')
 
 model = model.to(device)
 model.resize_token_embeddings(len(tokenizer))
@@ -67,8 +64,8 @@ seq2seq_args = Seq2SeqTrainingArguments(
     weight_decay=0.015,
     report_to="tensorboard",
     load_best_model_at_end = True,
-    per_device_train_batch_size = 16,
-    per_device_eval_batch_size = 16
+    per_device_train_batch_size = 8,
+    per_device_eval_batch_size = 8
 )
 data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 trainer = Seq2SeqTrainer(
