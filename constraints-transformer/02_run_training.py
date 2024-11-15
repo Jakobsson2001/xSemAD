@@ -67,8 +67,8 @@ seq2seq_args = Seq2SeqTrainingArguments(
     weight_decay=0.015,
     report_to="tensorboard",
     load_best_model_at_end = True,
-    per_device_train_batch_size = 32,
-    per_device_eval_batch_size = 32
+    per_device_train_batch_size = 16,
+    per_device_eval_batch_size = 16
 )
 data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 trainer = Seq2SeqTrainer(
