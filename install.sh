@@ -74,7 +74,7 @@ DATASET_DIR="data/sap_sam_2022/"
 # Check if the dataset directory exists
 if [ ! -d "$DATASET_DIR" ]; then
     echo "Dataset directory not found. Proceeding with download and extraction."
-    mkdir -p "$CHECKPOINT_DIR"
+    mkdir -p "$DATASET_DIR"
 
     # Download the zip file
     curl -L -o filtered.zip https://zenodo.org/records/14169034/files/filtered.zip?download=1&preview=1
