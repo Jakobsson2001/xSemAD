@@ -23,7 +23,6 @@ dataset_for_training_dir = f'data/{dataset}/forTraining'#'data/bpmai/forTraining
 training_dataset_filename = 'training'
 path_to_training_dataset = os.path.join(dataset_for_training_dir,training_dataset_filename)
 data = load_from_disk(path_to_training_dataset)
-print(data)
 validation_data = data['test'].to_pandas()
 model_case_names = validation_data.id.unique() 
 
@@ -49,7 +48,7 @@ if not os.path.exists(prediction_output_dir):
     os.makedirs(prediction_output_dir)
 
 for model_case_name in tqdm(model_case_names,desc='make predictions'):
-    #print(model_case_name)
+    print(model_case_name)
     result_list=[]
     path_to_labels = os.path.join(labels_dir,f'{model_case_name}.LABELS.pkl')
     with open(path_to_labels,'rb') as f:
