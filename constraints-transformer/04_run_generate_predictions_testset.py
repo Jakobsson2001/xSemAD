@@ -48,7 +48,6 @@ if not os.path.exists(prediction_output_dir):
     os.makedirs(prediction_output_dir)
 
 for model_case_name in tqdm(model_case_names, desc='make predictions'):
-    print(model_case_name)
     result_list = []
     try:
         # Attempt to open the labels file
