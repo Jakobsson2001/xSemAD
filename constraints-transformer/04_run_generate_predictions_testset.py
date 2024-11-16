@@ -61,6 +61,7 @@ for model_case_name in tqdm(model_case_names, desc='make predictions'):
         with open(path_to_constraints, 'rb') as f:
             constraints = pickle.load(f)
         
+        print("Dömdöm döööö", model_case_name)
         # Process constraints
         all_constraint_types_in_model = list(set([i.split('[')[0] for i in constraints]))
         for c in list(all_constraint_types):
