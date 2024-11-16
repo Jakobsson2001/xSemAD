@@ -81,7 +81,7 @@ for model_case_name in tqdm(model_case_names, desc='make predictions'):
 
     except (FileNotFoundError, IOError) as e:
         # Handle the error and continue to the next iteration
-        print(f"Could not process {model_case_name}: {e}")
+        #print(f"Could not process {model_case_name}: {e}")
         continue
 
 print('DONE!')
