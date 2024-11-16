@@ -47,25 +47,40 @@ path_to_constraints = labels_dir
 if not os.path.exists(prediction_output_dir):
     os.makedirs(prediction_output_dir)
 
-for model_case_name in tqdm(model_case_names,desc='make predictions'):
+for model_case_name in tqdm(model_case_names, desc='make predictions'):
     print(model_case_name)
-    result_list=[]
-    path_to_labels = os.path.join(labels_dir,f'{model_case_name}.LABELS.pkl')
-    with open(path_to_labels,'rb') as f:
-        labels = list(pickle.load(f))
-    with open(f'{path_to_constraints}{model_case_name}.CONSTRAINTS.pkl','rb') as f:
-        constraints = pickle.load(f)
+    result_list = []
+    try:
+        # Attempt to open the labels file
+        path_to_labels = os.path.join(labels_dir, f'{model_case_name}.LABELS.pkl')
+        with open(path_to_labels, 'rb') as f:
+            labels = list(pickle.load(f))
+
+        # Attempt to open the constraints file
+        path_to_constraints = os.path.join(constraints_dir, f'{model_case_name}.CONSTRAINTS.pkl')
+        with open(path_to_constraints, 'rb') as f:
+            constraints = pickle.load(f)
+        
+        # Process constraints
         all_constraint_types_in_model = list(set([i.split('[')[0] for i in constraints]))
-    for c in list(all_constraint_types):
-        if c in all_constraint_types_in_model:
-            context = c+': <event>'+ '<event>'.join(labels)
-            true_c_list = [i for i in constraints if i.startswith(c+ '[') ] 
-            true_c_list = sort_constraints(true_c_list, remove_duplicates=True)
-            prediction = generate_prediction_list(context,tokenizer,model,30, max_new_tokens=max_new_tokens, device=device)
-            prediction = filter_prediction_list_for_eval(model_labels=labels, prediction_c_list=prediction)
-            prediction = sort_constraints_for_eval(prediction, remove_duplicates=True)
-            result_list.append((c,prediction))
-    file_name_path = f'{prediction_output_dir}{model_case_name}.pkl'
-    with open(file_name_path, 'wb') as f:
-        pickle.dump(result_list, f)
+        for c in list(all_constraint_types):
+            if c in all_constraint_types_in_model:
+                context = c + ': <event>' + '<event>'.join(labels)
+                true_c_list = [i for i in constraints if i.startswith(c + '[')]
+                true_c_list = sort_constraints(true_c_list, remove_duplicates=True)
+                prediction = generate_prediction_list(context, tokenizer, model, 30, max_new_tokens=max_new_tokens, device=device)
+                prediction = filter_prediction_list_for_eval(model_labels=labels, prediction_c_list=prediction)
+                prediction = sort_constraints_for_eval(prediction, remove_duplicates=True)
+                result_list.append((c, prediction))
+
+        # Save predictions to file
+        file_name_path = f'{prediction_output_dir}{model_case_name}.pkl'
+        with open(file_name_path, 'wb') as f:
+            pickle.dump(result_list, f)
+
+    except (FileNotFoundError, IOError) as e:
+        # Handle the error and continue to the next iteration
+        print(f"Could not process {model_case_name}: {e}")
+        continue
+
 print('DONE!')
