@@ -7,6 +7,8 @@ from sklearn.model_selection import train_test_split
 from datasets import load_from_disk, Dataset, DatasetDict
 from labelparser.label_utils import get_relevant_constraints
 
+DATASIZE_TO_GENERATE = 1000
+
 dataset_name='sap_sam_2022/filtered'
 constraint_type='DECLARE'
 labels_dir=f'data/{dataset_name}/labels'
@@ -31,7 +33,8 @@ if not os.path.exists(constraints_to_log_labels_dir):
     os.makedirs(constraints_to_log_labels_dir)
 #create trainingsdataset
 id_list, context_list, target_list=[],[],[]
-for case_name in tqdm(case_names, desc='process processes'):
+selected_case_names = case_names[:DATASIZE_TO_GENERATE]  # Limit the cases to process
+for case_name in tqdm(selected_case_names, desc='process processes'):
     path_to_label_file = os.path.join(labels_dir,f'{case_name}.pkl')
     path_to_constraint_file = os.path.join(constraints_dir,f'{case_name}.{constraint_type}.pkl')
     with open(path_to_label_file,'rb') as f:
