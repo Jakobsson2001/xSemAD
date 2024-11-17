@@ -1,3 +1,6 @@
+def _has_too_many_constraints(labels, constraints, label_limit, constraint_limit):
+    return len(labels) > label_limit or len(constraints) > constraint_limit
+
 import os
 import pandas as pd
 import pickle
@@ -7,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from datasets import load_from_disk, Dataset, DatasetDict
 from labelparser.label_utils import get_relevant_constraints
 
-DATASIZE_TO_GENERATE = 1000
+DATASIZE_TO_GENERATE = 20000
 
 dataset_name='sap_sam_2022/filtered'
 constraint_type='DECLARE'
@@ -41,6 +44,14 @@ for case_name in tqdm(selected_case_names, desc='process processes'):
         model_labels = list(pickle.load(f))
     with open(path_to_constraint_file,'rb') as f:
         model_constraints = pickle.load(f)
+
+    label_limit = 100
+    constraint_limit = 35
+    # Skip models that are too large
+    if _has_too_many_constraints(model_labels, model_constraints, label_limit, constraint_limit):
+        print(f"Skipping {case_name}: exceeds label ({len(model_labels)})/constraint limits({len(model_constraints)}).")
+        continue
+
     model_labels, model_constraints = get_relevant_constraints(model_labels=model_labels, model_constraints=model_constraints)#this list contains only constraints which labels are similar to the model labels extracted from the event logs
     
     label_file = os.path.join(constraints_to_log_labels_dir, case_name + ".LABELS.pkl")
