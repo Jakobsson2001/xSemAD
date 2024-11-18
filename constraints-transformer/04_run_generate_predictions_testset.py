@@ -24,6 +24,7 @@ training_dataset_filename = 'training'
 path_to_training_dataset = os.path.join(dataset_for_training_dir,training_dataset_filename)
 data = load_from_disk(path_to_training_dataset)
 validation_data = data['test'].to_pandas()
+print(validation_data)
 model_case_names = validation_data.id.unique() 
 
 #get all possible constraint types
@@ -47,6 +48,7 @@ path_to_constraints = labels_dir
 if not os.path.exists(prediction_output_dir):
     os.makedirs(prediction_output_dir)
 
+filesNotFound = 0
 for model_case_name in tqdm(model_case_names, desc='make predictions'):
     result_list = []
     try:
@@ -80,7 +82,8 @@ for model_case_name in tqdm(model_case_names, desc='make predictions'):
 
     except (FileNotFoundError, IOError) as e:
         # Handle the error and continue to the next iteration
+        filesNotFound += 1
         #print(f"Could not process {model_case_name}: {e}")
         continue
 
-print('DONE!')
+print('DONE! And there where ', filesNotFound, ' files not found')
