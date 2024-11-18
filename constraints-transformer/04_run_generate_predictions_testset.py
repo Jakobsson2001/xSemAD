@@ -12,7 +12,7 @@ import torch
 
 #below would be for the fetched from zendo?
 #model_checkpoint =  "checkpoint-127200/checkpoint-42400"#"checkpoint-118800"
-model_checkpoint = "checkpoint-12276"
+model_checkpoint = "checkpoint-25848"
 model_name='google/flan-t5-small'
 dataset='sap_sam_2022/filtered'
 max_new_tokens=100
@@ -24,7 +24,6 @@ training_dataset_filename = 'training'
 path_to_training_dataset = os.path.join(dataset_for_training_dir,training_dataset_filename)
 data = load_from_disk(path_to_training_dataset)
 validation_data = data['test'].to_pandas()
-print(validation_data)
 model_case_names = validation_data.id.unique() 
 
 #get all possible constraint types
@@ -42,8 +41,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_dir)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = model.to(device)
 # 
-labels_dir = f'data/{dataset}/constraints_to_log_labels/'
-path_to_constraints = labels_dir
+relevant_data_dir = f'data/{dataset}/constraints_to_log_labels/'
 
 if not os.path.exists(prediction_output_dir):
     os.makedirs(prediction_output_dir)
@@ -53,16 +51,15 @@ for model_case_name in tqdm(model_case_names, desc='make predictions'):
     result_list = []
     try:
         # Attempt to open the labels file
-        path_to_labels = os.path.join(labels_dir, f'{model_case_name}.LABELS.pkl')
+        path_to_labels = os.path.join(relevant_data_dir, f'{model_case_name}.LABELS.pkl')
         with open(path_to_labels, 'rb') as f:
             labels = list(pickle.load(f))
 
         # Attempt to open the constraints file
-        path_to_constraints = os.path.join(constraints_dir, f'{model_case_name}.CONSTRAINTS.pkl')
+        path_to_constraints = os.path.join(relevant_data_dir, f'{model_case_name}.CONSTRAINTS.pkl')
         with open(path_to_constraints, 'rb') as f:
             constraints = pickle.load(f)
         
-        print("Dömdöm döööö", model_case_name)
         # Process constraints
         all_constraint_types_in_model = list(set([i.split('[')[0] for i in constraints]))
         for c in list(all_constraint_types):
