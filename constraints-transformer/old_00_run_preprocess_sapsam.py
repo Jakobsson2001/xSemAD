@@ -1,3 +1,5 @@
+"""
+#TODO: THis file is not needed for this project at all, might remove
 import sys
 import os
 import json
@@ -143,23 +145,24 @@ def generate_constraints_from_json(json_dir:str, target_constraint_dir:str, cons
         json_files = json_names_to_process
 
     print(json_files)
-
     all_constraint_types = set()
 
     for json_file in tqdm(json_files, desc='generate constraints'):
 
-        print("JSON-file" + json_file)
+        #print("JSON-file" + json_file)
         case_name = os.path.basename(json_file).split('.')[0]
         path_to_file = os.path.join(json_dir,f'{case_name}.json')
         print(path_to_file)
+
         try:
-            print("test 1")
             constraints = compile_bpmn_diagram(path_to_file, constraint_type, skip_named_gateways=True) # DECLARE, SIGNAL, LTLF, 
-            print("test 2")
+            print("end of comp")
             constraints = list(set(constraints))
             for constraint in constraints:
                 all_constraint_types.add(constraint.split('[')[0])
         except TypeError:
+            print("tetsts")
+            exit()
             continue
         constraints_file = os.path.join(target_constraint_dir, case_name + f'.{constraint_type}'+".pkl")
         with open(constraints_file, 'wb') as file:
@@ -198,3 +201,4 @@ json_names_to_process = os.listdir(logs_dir)
 generate_constraints_from_json(json_dir=json_dir,target_constraint_dir=target_constraint_dir,constraint_type=constraint_type,json_names_to_process=json_names_to_process)
 
 print('DONE!')
+"""
