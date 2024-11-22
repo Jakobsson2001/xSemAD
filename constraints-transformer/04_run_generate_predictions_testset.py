@@ -29,9 +29,6 @@ model_case_names = validation_data.id.unique()
 #get all possible constraint types
 constraint_type='DECLARE'
 constraints_dir = f'data/{dataset}/constraints'
-path_to_all_constraint_types_file = os.path.join(constraints_dir,f'ALL_CONSTRAINT_TYPES.{constraint_type}.pkl')
-with open(path_to_all_constraint_types_file,'rb') as f:
-    all_constraint_types = pickle.load(f)
 
 #load model
 model_dir = f"data/model/{dataset}/{model_name}/{model_checkpoint}"
@@ -62,15 +59,26 @@ for model_case_name in tqdm(model_case_names, desc='make predictions'):
         
         # Process constraints
         all_constraint_types_in_model = list(set([i.split('[')[0] for i in constraints]))
-        for c in list(all_constraint_types):
-            if c in all_constraint_types_in_model:
-                context = c + ': <event>' + '<event>'.join(labels)
-                true_c_list = [i for i in constraints if i.startswith(c + '[')]
-                true_c_list = sort_constraints(true_c_list, remove_duplicates=True)
-                prediction = generate_prediction_list(context, tokenizer, model, 30, max_new_tokens=max_new_tokens, device=device)
-                prediction = filter_prediction_list_for_eval(model_labels=labels, prediction_c_list=prediction)
-                prediction = sort_constraints_for_eval(prediction, remove_duplicates=True)
-                result_list.append((c, prediction))
+        for constraint_type in all_constraint_types_in_model:
+            # Prepare context for prediction generation
+            context = constraint_type +": <event>" + "<event>".join(labels)
+            
+            # Filter and sort true constraints for the current type
+            true_constraints = [c for c in constraints if c.startswith(f"{constraint_type}[")]
+            true_constraints = sort_constraints(true_constraints, remove_duplicates=True)
+            
+            # Generate predictions based on the context
+            predictions = generate_prediction_list(
+                context, tokenizer, model, num_predictions=30, 
+                max_new_tokens=max_new_tokens, device=device
+            )
+            
+            # Filter and sort predictions for evaluation
+            predictions = filter_prediction_list_for_eval(model_labels=labels, prediction_c_list=predictions)
+            predictions = sort_constraints_for_eval(predictions, remove_duplicates=True)
+            
+            # Append the results for the current constraint type
+            result_list.append((constraint_type, predictions))
 
         # Save predictions to file
         file_name_path = f'{prediction_output_dir}{model_case_name}.pkl'
