@@ -69,7 +69,7 @@ for model_case_name in tqdm(model_case_names, desc='make predictions'):
             
             # Generate predictions based on the context
             predictions = generate_prediction_list(
-                context, tokenizer, model, num_predictions=30, 
+                context, tokenizer, model, 30, 
                 max_new_tokens=max_new_tokens, device=device
             )
             
