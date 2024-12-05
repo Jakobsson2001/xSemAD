@@ -278,7 +278,7 @@ def evaluate_constraints(test_case_names,
         all_constraint_types_in_model = _extract_constraint_types(true_constraints)
         
         pred_pairs_temp = _load_predictions(path_to_pred_constraints, model_case_name, xsemad_threshold)
-        
+
         if group_constraint_types is not None:
             # Perform grouped evaluation and get results
             result = _grouped_evaluation(true_constraints, pred_pairs_temp, group_constraint_types, constraints_of_interest, model_case_name, MODEL_NAME)
@@ -308,14 +308,22 @@ def _load_predictions(path, model_case_name, threshold):
     """Load prediction constraints, applying a threshold filter to get only generated constraints with good enough ranking TODO: is this properly explained?."""
     path_to_pred_file = f'{path}/{model_case_name}.pkl'
 
-    with open(path_to_pred_file, 'rb') as f:
-        pred_pairs_temp = pickle.load(f)
-    
-    pred_pairs_temp = [item for sublist in pred_pairs_temp for item in sublist[1]]
-    pred_pairs_temp = [i for i in pred_pairs_temp if i[1] > threshold]
-    
+    try:
+        with open(path_to_pred_file, 'rb') as f:
+            pred_pairs_temp = pickle.load(f)
+    except (FileNotFoundError, IOError) as e:
+        # Handle the error and continue to the next iteration
+        print(f"Could not find file {path_to_pred_file}: {e}")
+        exit()
+            
+
+    if threshold is not None: 
+        pred_pairs_temp = [item for sublist in pred_pairs_temp for item in sublist[1]]
+        pred_pairs_temp = [i for i in pred_pairs_temp if i[1] > threshold]
+        return sort_constraints([i[0] for i in pred_pairs_temp], remove_duplicates=True)
+    #print(pred_pairs_temp[0])
     # Structure adjustment for XSEMAD
-    return sort_constraints([i[0] for i in pred_pairs_temp], remove_duplicates=True)
+    return sort_constraints(pred_pairs_temp, remove_duplicates=True)
 
 
 def _grouped_evaluation(true_constraints, pred_constraints, group_types, constraints_of_interest, case_name, model_name):
@@ -348,7 +356,7 @@ def _individual_evaluation(true_constraints, pred_constraints, constraint_types_
         if constraint_type in constraint_types_in_model:
             true_pairs = _extract_pairs(true_constraints, constraint_type)
             pred_pairs = _extract_pairs(pred_constraints, constraint_type)
-            
+
             if true_pairs:
                 precision, recall, f1 = _calculate_precision_recall_f1(list(set(true_pairs)), list(set(pred_pairs)))
                 results.append({
@@ -363,7 +371,7 @@ def _individual_evaluation(true_constraints, pred_constraints, constraint_types_
                 if recall == 0 and precision == 0:
                     zero_count += 1
 
-    print(f"Zero-score constraints for {case_name}: {zero_count} out of {len(constraints_of_interest)}")
+    #print(f"Zero-score constraints for {case_name}: {zero_count} out of {len(constraints_of_interest)}")
     return results  # Return the list of results for each individual constraint
 
 
