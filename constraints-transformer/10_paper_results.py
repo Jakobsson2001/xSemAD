@@ -48,6 +48,10 @@ def get_model_dirs(base_dir):
                         test_case_names = [
                             i.split('.')[0] for i in os.listdir(sub_dir_path) if i.endswith('.pkl')
                         ]
+
+                        # Not interessted with cases that has no constraints
+                        if len(test_case_names) == 0:
+                            continue
                     
                     # Apply filters based on args
                     if args.llama and "llama" in sub_dir:
@@ -70,10 +74,13 @@ def get_model_dirs(base_dir):
                         models.append((test_case_names, path_to_true_constraints, sub_dir_path, sub_dir, constraints_to_be_grouped, None, None))
                     
                     elif args.kiran and "flan-t5-small_checkpoint" in sub_dir_path:
-                        models.append((test_case_names, path_to_true_constraints, sub_dir_path, sub_dir, constraints_to_be_grouped, None, None))
+                        models.append((test_case_names, path_to_true_constraints, sub_dir_path, sub_dir, constraints_to_be_grouped, None, 0.69))
                     
                     elif not (args.llama or args.gpt_4o or args.random or args.kiran):  # If no filter, include all
-                        models.append((test_case_names, path_to_true_constraints, sub_dir_path, sub_dir, constraints_to_be_grouped, None, None))
+                        if "flan-t5-small_checkpoint" in sub_dir_path:
+                            models.append((test_case_names, path_to_true_constraints, sub_dir_path, sub_dir, constraints_to_be_grouped, None, 0.69))
+                        else:
+                            models.append((test_case_names, path_to_true_constraints, sub_dir_path, sub_dir, constraints_to_be_grouped, None, None))
     return models
 
 # Collect models
