@@ -9,7 +9,7 @@ This thesis will further expand this research direction, by supporting the provi
 
 ### Built with
 * ![platform](https://img.shields.io/badge/platform-linux-brightgreen)
-* ![GPU]([https://img.shields.io/badge/GPU-2%20x%20Nvidia%20RTX%20A6000-red](https://img.shields.io/badge/GPU-%20Nvidia%20A10G-red)
+* ![GPU]([[https://img.shields.io/badge/GPU-2%20x%20Nvidia%20RTX%20A6000-red](https://img.shields.io/badge/GPU-%20Nvidia%20A10G-red)](https://img.shields.io/badge/GPU-%20Nvidia%20A10G-red)
 * ![python](https://img.shields.io/badge/python-black?logo=python&label=3.10.12)
 
 ## Requirements
