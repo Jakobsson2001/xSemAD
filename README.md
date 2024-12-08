@@ -33,9 +33,9 @@ Make sure to adapt all path file names to your needs.
     │   ├ 01_run_paper_preprocessing_data.py             <- Script to generate train,test, and validatrion set
     │   ├ 02_run_training.py                             <- Script to fine-tune FLAN-T5 
     │   ├ 04_run_generate_predictions_testset.py         <- Script to generate xSemAD predictions on testset
-    │   ├ declare_to_textdesc.py                         <- 
-    │   ├ vanilla_gpt_predictions.py                     <- 
-    │   ├ random_predictions.py                          <- 
+    │   ├ declare_to_textdesc.py                         <- Converts DECLARE constraints into text descriptions
+    │   ├ vanilla_gpt_predictions.py                     <- Generates predictions using non-fine-tuned GPT
+    │   ├ random_predictions.py                          <- Generates random constraint predictions as a baseline
     │   ├ 10_paper_paper_results.py                      <- Script go generate the PAPER RESULTS
     │   ├ config.py                                      <- config file 
     │   └ requirements.txt                               <- requirements file
