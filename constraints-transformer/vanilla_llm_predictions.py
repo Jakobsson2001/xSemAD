@@ -190,11 +190,15 @@ def process_files(llm, case_names, eventlogs_folder, output_folder, all_constrai
             # Process constraints
             result_list = []
             all_constraint_types_in_model = list(set([i.split('[')[0] for i in constraints]))
-            for constraint_type in all_constraint_types_in_model:
+            if all_constraints_at_once:
                 predictions = predict_with_openai(llm, constraint_type, eventlog, all_constraints_at_once, textdesc)
-
-                # Append the results for the current constraint type
                 result_list.extend(predictions)
+            else:
+                for constraint_type in all_constraint_types_in_model:
+                    predictions = predict_with_openai(llm, constraint_type, eventlog, all_constraints_at_once, textdesc)
+
+                    # Append the results for the current constraint type
+                    result_list.extend(predictions)
 
             # Save predictions to file
             file_name_path = f'{output_folder}{case_name}.pkl'
