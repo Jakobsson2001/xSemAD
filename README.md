@@ -34,14 +34,34 @@ Make sure to adapt all path file names to your needs.
     │   ├ 02_run_training.py                             <- Script to fine-tune FLAN-T5 
     │   ├ 04_run_generate_predictions_testset.py         <- Script to generate xSemAD predictions on testset
     │   ├ declare_to_textdesc.py                         <- Converts DECLARE constraints into text descriptions
-    │   ├ vanilla_gpt_predictions.py                     <- Generates predictions using non-fine-tuned GPT
+    │   ├ vanilla_llm_predictions.py                     <- Generates predictions using non-fine-tuned GPT
     │   ├ random_predictions.py                          <- Generates random constraint predictions as a baseline
     │   ├ 10_paper_paper_results.py                      <- Script go generate the PAPER RESULTS
     │   ├ config.py                                      <- config file 
     │   └ requirements.txt                               <- requirements file
     ├── README.md                                        <- The top-level README for users of this project.
     └── LICENSE                                          <- License that applies to the source code in this repository.
-    
+
+## User Guide: Running the Pipeline
+
+The files in this repository are generally run in the order they appear in the project structure. Below is a guide for running the files:
+
+1. **Start with preprocessing the data**:
+   ```sh
+   python3 constraints-transformer/01_run_paper_preprocessing_data.py
+   ```
+2. Run each subsequent file in the order they appear: Follow the project structure and execute the files step-by-step.
+
+3. Continue through the pipeline: Always check for optional arguments or configurations using -h before running a file.
+   
+### Files with Arguments
+Some files can be run with additional arguments or configurations. To learn about the available options for these files, use the -h (help) flag. If the file doesn’t take any arguments, it will start execution instead.
+Example:
+   ```sh
+   python3 constraints-transformer/vanilla_llm_predictions.py -h
+   ```
+This will display available arguments and their descriptions for the file.
+Feel free to refer to the help command for guidance on any specific script’s functionality or configuration options. Or contact the authors.
 
 ## Contact
 
