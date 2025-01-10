@@ -69,6 +69,29 @@ pip3 install -r requirements.txt
 
 # Download only the dataset Kiran has used
 # Define the target directory for the dataset
+#DATASET_DIR="data/sap_sam_2022/"
+
+# Check if the dataset directory exists
+#if [ ! -d "$DATASET_DIR" ]; then
+#    echo "Dataset directory not found. Proceeding with download and extraction."
+#    mkdir -p "$DATASET_DIR"
+
+    # Download the zip file
+#   curl -L -o filtered.zip https://zenodo.org/records/14169034/files/filtered.zip?download=1&preview=1
+
+    # Unzip the downloaded file to the target directory
+#    unzip filtered.zip -d "$DATASET_DIR"
+
+    # Optionally, remove the zip file after extraction
+#    rm filtered.zip
+
+#    echo "Dataset downloaded and extracted successfully."
+#else
+#    echo "Dataset directory already exists. Skipping download and extraction."
+#fi
+
+# Unzip and delete datasetfile
+# Define the target directory for the dataset
 DATASET_DIR="data/sap_sam_2022/"
 
 # Check if the dataset directory exists
@@ -77,13 +100,13 @@ if [ ! -d "$DATASET_DIR" ]; then
     mkdir -p "$DATASET_DIR"
 
     # Download the zip file
-    curl -L -o filtered.zip https://zenodo.org/records/14169034/files/filtered.zip?download=1&preview=1
+    curl -L -o sap_sam_2022.zip https://figshare.com/ndownloader/files/51594599
 
     # Unzip the downloaded file to the target directory
-    unzip filtered.zip -d "$DATASET_DIR"
+    unzip sap_sam_2022.zip -d "$DATASET_DIR"
 
     # Optionally, remove the zip file after extraction
-    rm filtered.zip
+    rm sap_sam_2022.zip
 
     echo "Dataset downloaded and extracted successfully."
 else

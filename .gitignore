@@ -2,8 +2,14 @@
 constraints-transformer/bpmn2constraints/
 
 # SAP related stuff
-constraints-transformer/declare_to_textdesc.py
-constraints-transformer/vanilla_gpt_predictions.py
+constraints-transformer/configGenAI.py
+
+*.pkl
+constraints-transformer/*.png
+constraints-transformer/*.pkl
+constraints-transformer/results/*.tex
+constraints-transformer/results/*.png
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

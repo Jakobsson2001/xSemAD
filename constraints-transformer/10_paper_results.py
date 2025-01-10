@@ -96,7 +96,7 @@ for model in models:
     print('----- ', model[3], ' -----')
     
     # Skip missing or empty folders
-    if not os.path.exists(model[2]) or not os.listdir(model[2]):
+    if not os.path.exists(model[2]) or len(os.listdir(model[2])) == 1:
         print(f"Skipping missing or empty folder: {model[2]}")
         continue
     
