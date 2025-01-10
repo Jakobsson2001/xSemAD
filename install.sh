@@ -105,6 +105,9 @@ if [ ! -d "$DATASET_DIR" ]; then
     # Unzip the downloaded file to the target directory
     unzip sap_sam_2022.zip -d "$DATASET_DIR"
 
+    mv data/sap_sam_2022/data/sap_sam_2022/filtered/ data/sap_sam_2022/
+    rm -r data/sap_sam_2022/data/
+
     # Optionally, remove the zip file after extraction
     rm sap_sam_2022.zip
 
