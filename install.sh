@@ -103,7 +103,7 @@ if [ ! -d "$DATASET_DIR" ]; then
     curl -L -o sap_sam_2022.zip https://figshare.com/ndownloader/files/51594599
 
     # Unzip the downloaded file to the target directory
-    unzip sap_sam_2022.zip -d "$DATASET_DIR"
+    unzip sap_sam_2022.zip
 
     # Optionally, remove the zip file after extraction
     rm sap_sam_2022.zip
