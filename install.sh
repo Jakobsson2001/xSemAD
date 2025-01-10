@@ -97,16 +97,13 @@ DATASET_DIR="data/sap_sam_2022/"
 # Check if the dataset directory exists
 if [ ! -d "$DATASET_DIR" ]; then
     echo "Dataset directory not found. Proceeding with download and extraction."
-    mkdir -p "$DATASET_DIR"
+    #mkdir -p "$DATASET_DIR"
 
     # Download the zip file
     curl -L -o sap_sam_2022.zip https://figshare.com/ndownloader/files/51594599
 
     # Unzip the downloaded file to the target directory
     unzip sap_sam_2022.zip -d "$DATASET_DIR"
-
-    mv data/sap_sam_2022/data/sap_sam_2022/filtered/ data/sap_sam_2022/
-    rm -r data/sap_sam_2022/data/
 
     # Optionally, remove the zip file after extraction
     rm sap_sam_2022.zip
